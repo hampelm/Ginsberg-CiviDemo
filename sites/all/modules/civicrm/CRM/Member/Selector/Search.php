@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -71,17 +71,19 @@ class CRM_Member_Selector_Search extends CRM_Core_Selector_Base implements CRM_C
      * @var array
      * @static
      */
-    static $_properties = array( 'contact_id', 'membership_id',
+    static $_properties = array( 'contact_id', 
+                                 'membership_id',
                                  'contact_type',
                                  'sort_name',
-                                 'membership_type_id',
+                                 'membership_type',
                                  'join_date',
                                  'membership_start_date',
                                  'membership_end_date',
                                  'membership_source',
                                  'status_id',
                                  'member_is_test',
-                                 'owner_membership_id'
+                                 'owner_membership_id',
+                                 'membership_status',
                                  );
 
     /** 
@@ -188,10 +190,16 @@ class CRM_Member_Selector_Search extends CRM_Core_Selector_Base implements CRM_C
      * @access public
      *
      */
-    static function &links( $status = 'all', $isPaymentProcessor = null, $accessContribution = null, $key = null  )
+    static function &links( $status = 'all', 
+                            $isPaymentProcessor = null, 
+                            $accessContribution = null, 
+                            $qfKey = null, 
+                            $context = null,
+                            $isCancelSupported = false )
     {
-        
-        $extraParams = ($key ) ? "&key={$key}" : null;
+        $extraParams = null;
+        if ( $context == 'search' ) $extraParams .= '&compContext=membership';
+        if ( $qfKey ) $extraParams .= "&key={$qfKey}";
         
         if ( !self::$_links['view'] ) {
             self::$_links['view'] = array(
@@ -238,6 +246,17 @@ class CRM_Member_Selector_Search extends CRM_Core_Selector_Base implements CRM_C
             }
             
             self::$_links['all'] = self::$_links['view'] + $extraLinks;
+        }
+        
+        if ( $isCancelSupported ) {
+            self::$_links['all'][CRM_Core_Action::DISABLE] = array( 
+                                                                   'name' => ts('Cancel Subscription'),
+                                                                   'url'  => 'civicrm/contribute/unsubscribe',
+                                                                   'qs'   => 'reset=1&mid=%%id%%&context=%%cxt%%'.$extraParams,
+                                                                   'title'=> 'Cancel Auto Renew Subscription'
+                                                                    );
+        } else if ( isset( self::$_links['all'][CRM_Core_Action::DISABLE] ) ) {
+            unset( self::$_links['all'][CRM_Core_Action::DISABLE] );
         }
         
         return self::$_links[$status];
@@ -335,25 +354,31 @@ class CRM_Member_Selector_Search extends CRM_Core_Selector_Base implements CRM_C
 
              // the columns we are interested in
              foreach (self::$_properties as $property) {             
-                 $row[$property] = $result->$property;
+                 if ( property_exists( $result, $property ) ) {
+                     $row[$property] = $result->$property;
+                 }
              }
              
-             if ( $row['member_is_test'] ) {
+             if ( CRM_Utils_Array::value('member_is_test', $row) ) {
                  $row['membership_type'] = $row['membership_type'] . " (test)";
              }
 
              $row['checkbox'] = CRM_Core_Form::CB_PREFIX . $result->membership_id;
-            
+
              if ( ! isset( $result->owner_membership_id ) ) {
                  // unset renew and followup link for deceased membership
                  $currentMask = $mask;
-                 if ( $result->status_id == 'Deceased' ) {
+                 if ( $result->membership_status == 'Deceased' ) {
                      $currentMask = $currentMask & ~CRM_Core_Action::RENEW & ~CRM_Core_Action::FOLLOWUP;
                  }
+                 
+                 $isCancelSupported = CRM_Member_BAO_Membership::isCancelSubscriptionSupported( $row['membership_id'] );
                  $row['action']   = CRM_Core_Action::formLink( self::links( 'all', 
                                                                             $this->_isPaymentProcessor, 
                                                                             $this->_accessContribution, 
-                                                                            $this->_key ), 
+                                                                            $this->_key,
+                                                                            $this->_context,
+                                                                            $isCancelSupported ), 
                                                                $currentMask,
                                                                array( 'id'  => $result->membership_id,
                                                                       'cid' => $result->contact_id,
@@ -365,7 +390,10 @@ class CRM_Member_Selector_Search extends CRM_Core_Selector_Base implements CRM_C
                                                                       'cxt' => $this->_context ) );
              }
              
-
+             $autoRenew = false;
+             if ( isset( $result->membership_recur_id ) && $result->membership_recur_id ) $autoRenew =  true;
+             $row['auto_renew'] = $autoRenew;
+             
              require_once( 'CRM/Contact/BAO/Contact/Utils.php' );
              $row['contact_type' ] = 
                  CRM_Contact_BAO_Contact_Utils::getImage( $result->contact_sub_type ? 
@@ -433,6 +461,11 @@ class CRM_Member_Selector_Search extends CRM_Core_Selector_Base implements CRM_C
                                                 'direction' => CRM_Utils_Sort::DONTCARE,
                                                 ),
                                          
+                                          array(
+                                                'name'      => ts('Auto-renew?'),
+                                                'sort'      => 'auto_renew',
+                                                'direction' => CRM_Utils_Sort::DONTCARE,
+                                                ),
                                           array('desc' => ts('Actions') ),
                                           );
 

@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -107,7 +107,10 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField
         if ( !isset($params['id']) && !isset($params['column_name']) ) {
             // if add mode & column_name not present, calculate it.
             require_once 'CRM/Utils/String.php';
-            $params['column_name'] = strtolower( CRM_Utils_String::munge( $params['label'], '_', 32 ) );
+            $params['column_name'] = 
+                strtolower( CRM_Utils_String::munge( $params['label'], '_', 32 ) );
+            
+            $params['name'] = CRM_Utils_String::munge($params['label'], '_', 64 );
         } else if ( isset($params['id']) ) {
             $params['column_name'] = CRM_Core_DAO::getFieldValue( 'CRM_Core_DAO_CustomField',
                                                                   $params['id'],
@@ -335,10 +338,11 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField
                                        $inline = false,
                                        $customDataSubType = null,
  									   $customDataSubName = null,
- 									   $onlyParent = false ) 
+ 									   $onlyParent = false,
+                                       $onlySubType = false ) 
     {
-        $onlySubType = false;
-
+        //$onlySubType = false;
+        
         if ( $customDataType && 
              !is_array( $customDataType ) ) {
             
@@ -539,6 +543,12 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField
                                             'html_type'        => CRM_Utils_Array::value('html_type', $values),
                                             'is_search_range'  => CRM_Utils_Array::value('is_search_range', $values),
                                             );
+
+            // CRM-6681, pass date and time format when html_type = Select Date 
+            if ( CRM_Utils_Array::value('html_type', $values) == 'Select Date' ) {
+                $importableFields[$key]['date_format'] = CRM_Utils_Array::value('date_format', $values);
+                $importableFields[$key]['time_format'] = CRM_Utils_Array::value('time_format', $values);
+            }
         }
          
         return $importableFields;
@@ -697,8 +707,8 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField
                                                                     $field->option_group_id );
             $include =& $qf->addElement('advmultiselect', $elementName, 
                                         $label, $selectOption,
-                                        array('size' => 5, 
-                                              'style' => 'width:150px',
+                                        array('size' => 5,
+                                              'style'=> '',
                                               'class' => 'advmultiselect')
                                         );
             
@@ -1124,10 +1134,10 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField
             }
         }
         
-        //set defaults if mode is registration / edit
+        //set defaults if mode is registration
         if ( ! trim( $value ) &&
              ( $value !== 0 ) &&
-             ( $mode != CRM_Profile_Form::MODE_SEARCH ) ) {
+             ( !in_array( $mode, array( CRM_Profile_Form::MODE_EDIT, CRM_Profile_Form::MODE_SEARCH ) ) ) ) {
             $value = $customField->default_value;
         }
 
@@ -1163,6 +1173,20 @@ class CRM_Core_BAO_CustomField extends CRM_Core_DAO_CustomField
             }
             break;
             
+        case 'Autocomplete-Select':
+            if ($customField->data_type == "ContactReference") {
+                require_once 'CRM/Contact/BAO/Contact.php';
+                if ( is_numeric( $value ) ) {
+                    $defaults[$elementName.'_id'] = $value; 
+                    $defaults[$elementName] = CRM_Core_DAO::getFieldValue( 'CRM_Contact_DAO_Contact', $value, 'sort_name' );
+                }
+            } else {
+                $label = CRM_Core_BAO_CustomOption::getOptionLabel($customField->id, $value );
+                $defaults[$elementName.'_id'] = $value;
+                $defaults[$elementName] = $label;
+            }
+            break;
+ 
         default:
             $defaults[$elementName] = $value;
         }
@@ -1342,7 +1366,7 @@ SELECT id
                     $value = "01-01-{$value}";
                 }
                 
-                $date = CRM_Utils_Date::processDate( $value );
+                $date = CRM_Utils_Date::processDate( $value, null, false, 'YmdHis', $format );
             }
             $value = $date;
         }
@@ -1773,14 +1797,14 @@ SELECT label, value
 SELECT     f.id
 FROM       civicrm_custom_field f
 INNER JOIN civicrm_custom_group g ON f.custom_group_id = g.id
-WHERE      f.label = %1
-AND        g.title = %2
+WHERE      ( f.label = %1 OR f.name  = %1 )
+AND        ( g.title = %2 OR g.title = %2 )
 ";
         } else {
             $sql = "
 SELECT     f.id
 FROM       civicrm_custom_field f
-WHERE      f.label = %1
+WHERE      ( f.label = %1 OR f.name = %1 )
 ";
         }
 
@@ -1792,5 +1816,101 @@ WHERE      f.label = %1
             return null;
         }
     }
-
+    
+    /**
+     * Validate custom data.
+     *
+     * @param array $params custom data submitted.
+     * ie array( 'custom_1' => 'validate me' );
+     *
+     * @return array $errors validation errors.
+     * @static
+     */
+    static function validateCustomData( $params ) 
+    {
+        $errors = array( );
+        if ( !is_array( $params ) || empty( $params ) ) {
+            return $errors;
+        }
+        
+        require_once 'CRM/Utils/Rule.php';
+        require_once 'CRM/Core/DAO/CustomField.php';
+        
+        //pick up profile fields.
+        $profileFields = array( );
+        $ufGroupId = CRM_Utils_Array::value( 'ufGroupId', $params );
+        if ( $ufGroupId ) {
+            require_once 'CRM/Core/BAO/UFGroup.php';
+            $profileFields = CRM_Core_BAO_UFGroup::getFields( $ufGroupId, 
+                                                              false, 
+                                                              CRM_Core_Action::VIEW );
+        }
+        
+        //lets start w/ params.
+        foreach ( $params as $key => $value ) {
+            $customFieldID = self::getKeyID( $key );
+            if ( !$customFieldID ) continue; 
+            
+            //load the structural info for given field.
+            $field = new CRM_Core_DAO_CustomField( );
+            $field->id = $customFieldID;
+            if ( !$field->find( true ) ) continue;
+            $dataType = $field->data_type;
+            
+            $profileField = CRM_Utils_Array::value( $key, $profileFields, array( ) );
+            $fieldTitle = CRM_Utils_Array::value( 'title',       $profileField );
+            $isRequired = CRM_Utils_Array::value( 'is_required', $profileField );
+            if ( !$fieldTitle ) $fieldTitle = $field->label;
+            
+            //no need to validate.
+            if ( CRM_Utils_System::isNull( $value ) && !$isRequired ) continue;  
+            
+            //lets validate first for required field.
+            if ( $isRequired && CRM_Utils_System::isNull( $value ) ) {
+                $errors[$key] = ts( '%1 is a required field.', array( 1 => $fieldTitle ) ); 
+                continue;
+            }
+            
+            //now time to take care of custom field form rules. 
+            $ruleName = $errorMsg = null;
+            switch ( $dataType ) {
+            case 'Int' :
+                $ruleName = 'integer';
+                $errorMsg = ts( '%1 must be an integer (whole number).', 
+                                array( 1 => $fieldTitle ) );
+                break;
+                
+            case 'Money' :
+                $ruleName = 'money';
+                $errorMsg = ts( '%1 must in proper money format. (decimal point/comma/space is allowed).', 
+                                array( 1 => $fieldTitle ) );
+                break;
+                
+            case 'Float':
+                $ruleName ='numeric';
+                $errorMsg = ts('%1 must be a number (with or without decimal point).', 
+                               array( 1 => $fieldTitle ) );
+                break;
+                
+            case 'Link':
+                $ruleName = 'wikiURL';
+                $errorMsg = ts( '%1 must be valid Website.', 
+                                array( 1 => $fieldTitle ) );
+                break;
+            }
+            
+            if ( $ruleName && !CRM_Utils_System::isNull( $value ) ) {
+                $valid   = false;
+                $funName = "CRM_Utils_Rule::{$ruleName}";
+                if ( is_callable( $funName ) ) {
+                    $valid = call_user_func( $funName, $value );
+                }
+                if ( !$valid ) $errors[$key] = $errorMsg; 
+            }
+        }
+        
+        return $errors;
+    }
+    
+    
 }

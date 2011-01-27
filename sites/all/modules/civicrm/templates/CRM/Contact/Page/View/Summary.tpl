@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -37,26 +37,29 @@
                     <ul id="actions">
                     	{* CRM-4418 *}
                         {* user should have edit permission to delete contact *}
-                        {if (call_user_func(array('CRM_Core_Permission','check'), 'delete contacts') and $permission == 'edit') or (call_user_func(array('CRM_Core_Permission','check'), 'access deleted contacts') and $is_deleted)}
-                        {if call_user_func(array('CRM_Core_Permission','check'), 'access deleted contacts') and $is_deleted}
+                        {if (call_user_func(array('CRM_Core_Permission','check'), 'access deleted contacts') and 
+                        $is_deleted)}
+
                         <li class="crm-delete-action crm-contact-restore">
                         <a href="{crmURL p='civicrm/contact/view/delete' q="reset=1&cid=$contactId&restore=1"}" class="delete button" title="{ts}Restore{/ts}">
                         <span><div class="icon restore-icon"></div>{ts}Restore from Trash{/ts}</span>
                         </a>
                         </li>
                         
+                        {if call_user_func(array('CRM_Core_Permission','check'), 'delete contacts')} 
                         <li class="crm-delete-action crm-contact-permanently-delete">
                         <a href="{crmURL p='civicrm/contact/view/delete' q="reset=1&delete=1&cid=$contactId&skip_undelete=1"}" class="delete button" title="{ts}Delete Permanently{/ts}">
                         <span><div class="icon delete-icon"></div>{ts}Delete Permanently{/ts}</span>
                         </a>
                         </li>
-                        {else}
+                        {/if}
+
+                        {elseif call_user_func(array('CRM_Core_Permission','check'), 'delete contacts')}
                         <li class="crm-delete-action crm-contact-delete">
                         <a href="{crmURL p='civicrm/contact/view/delete' q="reset=1&delete=1&cid=$contactId"}" class="delete button" title="{ts}Delete{/ts}">
                         <span><div class="icon delete-icon"></div>{ts}Delete{/ts}</span>
                         </a>
                         </li>
-                        {/if}
                         {/if}
                     
                     	{* Include the Actions button with dropdown if session has 'edit' permission *}
@@ -187,7 +190,7 @@
                                 {foreach from=$website item=item}
                                     {if $item.url}
                                     <tr>
-                                        <td class="label">{$item.website_type}</td>
+                                        <td class="label">{$item.website_type} {ts}Website{/ts}</td>
                                         <td><a href="{$item.url}" target="_blank">{$item.url}</a></td>
                                         <td></td>
                                     </tr>
@@ -250,11 +253,11 @@
                                             <br /><a href="{crmURL p='civicrm/contact/map' q="reset=1&cid=`$contactId`&lid=`$add.location_type_id`"}" title="{ts 1='&#123;$add.location_type&#125;'}Map %1 Address{/ts}"><span class="geotag">{ts}Map{/ts}</span></a>
                                         {/if}</td>
                                     <td>
-                                        {if $householdName and $locationIndex eq 1}
-                                        <strong>{ts}Household Address:{/ts}</strong><br />
-                                        <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$mail_to_household_id`"}">{$householdName}</a><br />
-                                        {/if}
-                                        {$add.display|nl2br}
+                                        {if $sharedAddresses.$locationIndex.shared_address_display.name}
+                                             <strong>{ts}Shared with:{/ts}</strong><br />
+                                             {$sharedAddresses.$locationIndex.shared_address_display.name}<br />
+                                         {/if}
+                                         {$add.display|nl2br}
                                     </td>
                                 </tr>
                             </table>
@@ -304,9 +307,11 @@
                                 <tr>
                                     <td class="label">{ts}Preferred Method(s){/ts}</td><td>{$preferred_communication_method_display}</td>
                                 </tr>
+                                {if $preferred_language}
                                 <tr>
                                     <td class="label">{ts}Preferred Language{/ts}</td><td>{$preferred_language}</td>
                                 </tr>
+                                {/if}
                                 <tr>
                                     <td class="label">{ts}Email Format{/ts}</td><td>{$preferred_mail_format}</td>
                                 </tr>
@@ -358,7 +363,20 @@
                         <div class="clear"></div>
                     </div>
                 </div>
-                
+                {literal}
+                <script type="text/javascript">
+                    cj('.columnheader').click( function( ) {
+                        var aTagObj = cj(this).find('a');
+                        if ( aTagObj.hasClass( "expanded" ) ) {
+                            cj(this).parent().find('tr:not(".columnheader")').hide( );
+                        } else {    
+                            cj(this).parent().find('tr:not(".columnheader")').show( );
+                        }
+                        aTagObj.toggleClass("expanded");
+                        return false;
+                    });
+                </script>
+                {/literal}
                 {if $hookContent and $hookContentPlacement eq 1}
                     {include file="CRM/Contact/Page/View/SummaryHook.tpl"}
                 {/if}
@@ -415,7 +433,6 @@ function showHideSignature( blockId ) {
 
 		buttons: { 
 			"Done": function() { 
-				cj(this).dialog("close"); 
 				cj(this).dialog("destroy"); 
 			} 
 		} 

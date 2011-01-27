@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -132,6 +132,12 @@ class CRM_Contribute_Form_AdditionalInfo
                             'objectExists', 
                             array( 'CRM_Contribute_DAO_Contribution', $form->_id, 'invoice_id' ) );
         }
+
+        $form->add('select', 'contribution_page_id', 
+                   ts( 'Online Contribution Page' ),
+                   array( '' => ts( '- select -' ) ) +
+                   CRM_Contribute_PseudoConstant::contributionPage( ) );
+        
         
         $form->add('textarea', 'note', ts('Notes'),array("rows"=>4,"cols"=>60) );
         
@@ -247,7 +253,8 @@ class CRM_Contribute_Form_AdditionalInfo
                          'net_amount',
                          'trxn_id',
                          'invoice_id',
-                         'honor_type_id'
+                         'honor_type_id',
+                         'contribution_page_id'
                          );
         foreach ( $fields as $f ) {
             $formatted[$f] = CRM_Utils_Array::value( $f, $params );
@@ -370,7 +377,6 @@ class CRM_Contribute_Form_AdditionalInfo
             $params['receipt_from_name'] = $form->userDisplayName;
             $params['receipt_from_email']= $form->userEmail;
             // assigned various dates to the templates
-            $form->assign('receive_date',  CRM_Utils_Date::processDate( $params['receive_date'] ) );
             $form->assign('receipt_date',  CRM_Utils_Date::processDate( $params['receipt_date'] ) );
             $form->assign('cancel_date',   CRM_Utils_Date::processDate( $params['cancel_date']  ) );
             if ( CRM_Utils_Array::value( 'thankyou_date', $params ) ) {
@@ -417,6 +423,8 @@ class CRM_Contribute_Form_AdditionalInfo
               $contributorEmail ) = CRM_Contact_BAO_Contact_Location::getEmailDetails( $params['contact_id'] );
         $this->assign( 'contactID', $params['contact_id'] );
         $this->assign( 'contributionID', $params['contribution_id'] );
+        $this->assign( 'currency', $params['currency']);
+        $this->assign( 'receive_date',  CRM_Utils_Date::processDate( $params['receive_date'] ) );
 
         $session  = CRM_Core_Session::singleton( );
         $userID   = $session->get( 'userID' );

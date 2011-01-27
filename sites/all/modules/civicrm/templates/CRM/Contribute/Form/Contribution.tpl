@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -25,7 +25,7 @@
 *}
 {* this template is used for adding/editing/deleting contribution *}
 
-{if $cdType }
+{if $cdType}
   {include file="CRM/Custom/Form/CustomData.tpl"}
 {elseif $priceSetId}
   {include file="CRM/Price/Form/PriceSet.tpl" context="standalone"}
@@ -91,15 +91,39 @@
         <tr  class="crm-contribution-form-block-total_amount">
             <td class="label">{$form.total_amount.label}</td>
     	    <td {$valueStyle}>
-        	    <span id='totalAmount'>{$form.total_amount.html|crmMoney:$form.currency.html|crmReplace:class:eight}</span> 
+        	    <span id='totalAmount'>{$form.currency.html|crmReplace:class:eight}&nbsp;{$form.total_amount.html|crmReplace:class:eight}</span> 
         	    {if $hasPriceSets}
         	        <span id='totalAmountORPriceSet'> {ts}OR{/ts}</span>
         	        <span id='selectPriceSet'>{$form.price_set_id.html}</span>
                     <div id="priceset" class="hiddenElement"></div>	    
         	    {/if}
-        	    <span class="description">{ts}Actual amount given by contributor.{/ts}</span>
-            </td>
+        	    
+            	{if $ppID}{ts}<a href='#' onclick='adjustPayment();'>adjust payment amount</a>{/ts}{help id="adjust-payment-amount"}{/if}
+	            <br /><span class="description">{ts}Actual amount given by contributor.{/ts}</span>
+	    </td>
         </tr>
+	    {if $buildRecurBlock}
+	    <tr id='recurringPaymentBlock' class='hiddenElement'>
+	       <td></td>		
+	       <td>
+		  <strong>{$form.is_recur.html} {ts}every{/ts} 
+		          &nbsp;{$form.frequency_interval.html} 
+		          &nbsp;{$form.frequency_unit.html}&nbsp; 
+		          {ts}for{/ts} 
+		          &nbsp;{$form.installments.html} 
+		          &nbsp;{$form.installments.label}
+		  </strong>
+		  <br />
+		  <span class="description"> 
+		  {ts}Your recurring contribution will be processed automatically for the number of installments you specify. You can leave the number of installments blank if you want to make an open-ended commitment. In either case, you can choose to cancel at any time. You will receive an email receipt for each recurring contribution. The receipts will include a link you can use if you decide to modify or cancel your future contributions.{/ts}
+		  </span>
+	       </td>
+	    </tr>	    	
+	    {/if}	
+	    	
+	    <tr id="adjust-option-type" class="crm-contribution-form-block-option_type">
+            <td class="label"></td><td {$valueStyle}>{$form.option_type.html}</td> 
+	    </tr>
     {/if}
 
         <tr  class="crm-contribution-form-block-source"><td class="label">{$form.source.label}</td><td{$valueStyle}>{$form.source.html} {help id="id-contrib_source"}</td></tr>
@@ -213,6 +237,7 @@
 // bind first click of accordion header to load crm-accordion-body with snippet
 // everything else taken care of by cj().crm-accordions()
 cj(document).ready( function() {
+    cj('#adjust-option-type').hide();	
     cj('.crm-ajax-accordion .crm-accordion-header').one('click', function() { 
     	loadPanes(cj(this).attr('id')); 
     });
@@ -247,13 +272,13 @@ function loadPanes( id ) {
     {if $context eq 'standalone' and $outBound_option != 2 }
     {literal}
     cj( function( ) {
-        cj("#contact").blur( function( ) {
+        cj("#contact_1").blur( function( ) {
             checkEmail( );
         });
         checkEmail( );
     });
     function checkEmail( ) {
-        var contactID = cj("input[name=contact_select_id]").val();
+        var contactID = cj("input[name=contact_select_id[1]]").val();
         if ( contactID ) {
             var postUrl = "{/literal}{crmURL p='civicrm/ajax/checkemail' h=0}{literal}";
             cj.post( postUrl, {contact_id: contactID},
@@ -418,11 +443,24 @@ function buildAmount( priceSetId ) {
       cj( "#totalAmountORPriceSet" ).show( );
       cj( "#totalAmount").show( );
 
+      //we might want to build recur block.
+      if ( cj( "#is_recur" ) ) buildRecurBlock( null );
+
       return;
   }
 
-  var dataUrl = {/literal}"{crmURL h=0 q='snippet=4'}"{literal} + '&priceSetId=' + priceSetId;
+  //don't allow recurring w/ priceset.
+  if ( cj( "#is_recur" ) && cj( 'input:radio[name=is_recur]:checked').val( ) ) {
+      //reset the values of recur block. 
+      cj("#installments").val('');
+      cj("#frequency_interval").val('');
+      cj( 'input:radio[name=is_recur]')[0].checked = true;
 
+      cj( "#recurringPaymentBlock" ).hide( );
+  }
+      
+  var dataUrl = {/literal}"{crmURL h=0 q='snippet=4'}"{literal} + '&priceSetId=' + priceSetId;
+  
   var response = cj.ajax({
 		         url: dataUrl,
 			 async: false
@@ -435,5 +473,11 @@ function buildAmount( priceSetId ) {
   cj( "#totalAmount").hide( );
   
 }
+function adjustPayment( ) {
+cj('#adjust-option-type').show();		    	    
+cj("#total_amount").removeAttr("READONLY");
+cj("#total_amount").css('background-color', '#ffffff');
+}
+
 </script>
 {/literal}

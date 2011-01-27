@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -45,6 +45,11 @@
       </div> 
 {else}
 <table class="form-layout">
+    {if $activityTypeDescription }
+        <tr>
+            <div id="help">{$activityTypeDescription}</div>
+        </tr>
+    {/if}
 {if $clientName}
     <tr class="crm-case-form-block-clientName">
     	<td class="label font-size12pt">{ts}Client{/ts}</td>
@@ -66,7 +71,7 @@
 {if $form.activity_details.html}
     <tr class="crm-case-form-block-activity_details">
         <td class="label">{$form.activity_details.label}{help id="id-details" file="CRM/Case/Form/Case.hlp"}</td>
-        <td class="view-value">{$form.activity_details.html|crmReplace:class:huge40}</td>
+        <td class="view-value">{if $defaultWysiwygEditor eq 0}{$form.activity_details.html|crmStripAlternatives|crmReplace:class:huge40}{else}{$form.activity_details.html|crmStripAlternatives}{/if}</td>
     </tr>
 {/if}
 
@@ -80,7 +85,7 @@
 {if $form.activity_subject.html}
     <tr class="crm-case-form-block-activity_subject">
        <td class="label">{$form.activity_subject.label}{help id="id-activity_subject" file="CRM/Case/Form/Case.hlp"}</td>
-       <td>{$form.activity_subject.html}</td>
+       <td>{$form.activity_subject.html|crmReplace:class:huge}</td>
     </tr>
 {/if}
 

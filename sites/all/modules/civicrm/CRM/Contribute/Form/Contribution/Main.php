@@ -2,7 +2,7 @@
 
 /*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -191,7 +191,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         //set default membership for membershipship block
         require_once 'CRM/Member/BAO/Membership.php';
         if ( $this->_membershipBlock ) {
-            $this->_defaults['selectMembership'] = 
+            $this->_defaults['selectMembership'] = $defaultMemType =
                 $this->_defaultMemTypeId ? $this->_defaultMemTypeId : 
                 CRM_Utils_Array::value( 'membership_type_default', $this->_membershipBlock );
         }
@@ -240,7 +240,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
                                              $statuses, $returnProperties );
             
             require_once 'CRM/Contribute/PseudoConstant.php';
-            $paymentStatusTypes = CRM_Contribute_PseudoConstant::contributionStatus( );
+            $paymentStatusTypes = CRM_Contribute_PseudoConstant::contributionStatus( null, 'name' );
             $duePayment = false;
             foreach ( $statuses as $payId => $value ) {
                 if ( $paymentStatusTypes[$value['status_id']] == 'Overdue' ) {
@@ -262,6 +262,12 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
             $this->_defaults = array_merge( $this->_defaults, $getDefaults );
         }
 
+        $config = CRM_Core_Config::singleton( );
+        // set default country from config if no country set
+        if ( !CRM_Utils_Array::value("billing_country_id-{$this->_bltID}", $this->_defaults ) ) { 
+            $this->_defaults["billing_country_id-{$this->_bltID}"] = $config->defaultContactCountry;
+        }
+        
         // now fix all state country selectors
         require_once 'CRM/Core/BAO/Address.php';
         CRM_Core_BAO_Address::fixAllStateSelects( $this, $this->_defaults );
@@ -335,7 +341,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
             if ( $this->_values['is_monetary'] &&
                  $this->_values['is_recur']    &&
                  $this->_paymentProcessor['is_recur'] ) {
-                $this->buildRecur( );
+                self::buildRecur( $this );
             }
         }
 
@@ -521,7 +527,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         $extraOption = array('onclick' =>"enableHonorType();");
         // radio button for Honor Type
         $honorOptions = array( );
-        $honor =CRM_Core_PseudoConstant::honor( ); 
+        $honor = CRM_Core_PseudoConstant::honor( ); 
         foreach ($honor as $key => $var) {
             $honorTypes[$key] = HTML_QuickForm::createElement('radio', null, null, $var, $key, $extraOption );
         }
@@ -605,33 +611,49 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
      *
      * @access public
      */
-    function buildRecur( ) {
+    function buildRecur( $form ) {
         $attributes = CRM_Core_DAO::getAttribute( 'CRM_Contribute_DAO_ContributionRecur' );
         $extraOption = array('onclick' =>"enablePeriod();");
         $elements = array( );
-      	$elements[] =& $this->createElement('radio', null, '', ts( 'I want to make a one-time contribution.'), 0, $extraOption );
-      	$elements[] =& $this->createElement('radio', null, '', ts( 'I want to contribute this amount'), 1, $extraOption );
-        $this->addGroup( $elements, 'is_recur', null, '<br />' );
-        $this->_defaults['is_recur'] = 0;
+      	$elements[] =& $form->createElement('radio', null, '', ts( 'I want to make a one-time contribution.'), 0, $extraOption );
+      	$elements[] =& $form->createElement('radio', null, '', ts( 'I want to contribute this amount'), 1, $extraOption );
+        $form->addGroup( $elements, 'is_recur', null, '<br />' );
+        $form->_defaults['is_recur'] = 0;
+        $className = get_class( $form ); 
         
-        if ( $this->_values['is_recur_interval'] ) {
-            $this->add( 'text', 'frequency_interval', ts( 'Every' ),
+        if ( CRM_Utils_Array::value( 'is_recur_interval', $form->_values ) ||
+             $className == 'CRM_Contribute_Form_Contribution' ) {
+            $form->add( 'text', 'frequency_interval', ts( 'Every' ),
                         $attributes['frequency_interval'] );
-            $this->addRule( 'frequency_interval', ts( 'Frequency must be a whole number (EXAMPLE: Every 3 months).' ), 'integer' );
+            $form->addRule( 'frequency_interval', 
+                            ts( 'Frequency must be a whole number (EXAMPLE: Every 3 months).' ), 'integer' );
         } else {
             // make sure frequency_interval is submitted as 1 if given
             // no choice to user.
-            $this->add( 'hidden', 'frequency_interval', 1 );
+            $form->add( 'hidden', 'frequency_interval', 1 );
+        }
+        
+        $frUnits = CRM_Utils_Array::value( 'recur_frequency_unit', $form->_values );
+        if ( empty( $frUnits ) && 
+             $className == 'CRM_Contribute_Form_Contribution' ) {
+            $frUnits = implode( CRM_Core_DAO::VALUE_SEPARATOR,
+                                CRM_Core_OptionGroup::values(  'recur_frequency_units' ) );
         }
         
         $units    = array( );
-        $unitVals = explode( CRM_Core_BAO_CustomOption::VALUE_SEPERATOR, $this->_values['recur_frequency_unit'] );
+        $unitVals = explode( CRM_Core_DAO::VALUE_SEPARATOR, $frUnits );
+        $frequencyUnits = CRM_Core_OptionGroup::values( 'recur_frequency_units' );
         foreach ( $unitVals as $key => $val ) {
-            // FIXME: this is not localisable
-            $units[$val] = $this->_values['is_recur_interval'] ? "{$val}(s)" : $val;
+            if ( array_key_exists( $val, $frequencyUnits ) ) {
+                $units[$val] = $frequencyUnits[$val];
+                if ( CRM_Utils_Array::value( 'is_recur_interval', $form->_values ) ||
+                     $className == 'CRM_Contribute_Form_Contribution' ) {
+                    $units[$val] = "{$frequencyUnits[$val]}(s)";
+                }
+            }
         }
 
-        $frequencyUnit =& $this->add( 'select', 'frequency_unit', null, $units );
+        $frequencyUnit =& $form->add( 'select', 'frequency_unit', null, $units );
         
         // FIXME: Ideally we should freeze select box if there is only
         // one option but looks there is some problem /w QF freeze.
@@ -639,9 +661,9 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         //$frequencyUnit->freeze( );
         //}
         
-        $this->add( 'text', 'installments', ts( 'installments' ),
+        $form->add( 'text', 'installments', ts( 'installments' ),
                     $attributes['installments'] );
-        $this->addRule( 'installments', ts( 'Number of installments must be a whole number.' ), 'integer' );
+        $form->addRule( 'installments', ts( 'Number of installments must be a whole number.' ), 'integer' );
     }
   
    
@@ -661,13 +683,6 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         $errors = array( );
         $amount = self::computeAmount( $fields, $self );
         
-        $email = $fields["email-{$self->_bltID}"];
-        require_once 'CRM/Core/BAO/UFMatch.php';
-        if ( CRM_Core_BAO_UFMatch::isDuplicateUser( $email ) ) {
-            $errors["email-{$self->_bltID}"] = ts( 'The email %1 already exists in the database.',
-                                                   array( 1 => $email ) );
-        }
-
         //check for atleast one pricefields should be selected
         if ( CRM_Utils_Array::value( 'priceSetId', $fields ) ) {
             $priceField = new CRM_Price_DAO_Field( );
@@ -687,7 +702,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
             }
             
             require_once 'CRM/Price/BAO/Set.php';
-            CRM_Price_BAO_Set::processAmount( $self->_priceSet['fields'], 
+            CRM_Price_BAO_Set::processAmount( $self->_values['fee'], 
                                               $fields, $lineItem );
             if ($fields['amount'] < 0) {
                 $errors['_qf_default'] = ts( "Contribution can not be less than zero. Please select the options accordingly" );
@@ -883,7 +898,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
                 $customizedValue = CRM_Core_OptionGroup::getValue( $greeting, 'Customized', 'name' ); 
                 if( $customizedValue  == $greetingType && 
                     ! CRM_Utils_Array::value( $customizedGreeting, $fields ) ) {
-                    $errors[$customizedGreeting] = ts( 'Custom  %1 is a required field if %1 is of type Customized.', 
+                    $errors[$customizedGreeting] = ts( 'Custom %1 is a required field if %1 is of type Customized.', 
                                                        array( 1 => ucwords(str_replace('_'," ", $greeting) ) ) );
                 }
             }
@@ -939,7 +954,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
 
         // get the submitted form values. 
         $params = $this->controller->exportValues( $this->_name );
-
+        
         if ( CRM_Utils_Array::value( 'onbehalfof_id', $params ) ) {
             $params['organization_id'] = $params['onbehalfof_id'];
         }
@@ -964,7 +979,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
         if ( $priceSetId = CRM_Utils_Array::value( 'priceSetId', $params ) ) {
             $lineItem = array( );
             require_once 'CRM/Price/BAO/Set.php';
-            CRM_Price_BAO_Set::processAmount( $this->_values['fee']['fields'], $params, $lineItem[$priceSetId] );
+            CRM_Price_BAO_Set::processAmount( $this->_values['fee'], $params, $lineItem[$priceSetId] );
             $this->set( 'lineItem', $lineItem );
         }
         $this->set( 'amount', $params['amount'] ); 
@@ -997,7 +1012,7 @@ class CRM_Contribute_Form_Contribution_Main extends CRM_Contribute_Form_Contribu
                     //default action is Sale
                     $params['payment_action'] = 'Sale';
                     
-                    $payment =& CRM_Core_Payment::singleton( $this->_mode, 'Contribute', $this->_paymentProcessor, $this ); 
+                    $payment =& CRM_Core_Payment::singleton( $this->_mode, $this->_paymentProcessor, $this ); 
                     $token = $payment->setExpressCheckout( $params ); 
                     if ( is_a( $token, 'CRM_Core_Error' ) ) { 
                         CRM_Core_Error::displaySessionError( $token ); 

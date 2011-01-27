@@ -1,6 +1,6 @@
 {*
  +--------------------------------------------------------------------+
- | CiviCRM version 3.1                                                |
+ | CiviCRM version 3.3                                                |
  +--------------------------------------------------------------------+
  | Copyright CiviCRM LLC (c) 2004-2010                                |
  +--------------------------------------------------------------------+
@@ -79,7 +79,7 @@
                     {assign var="showTarget" value=$showTarget+1}
                 {/if}
             {/foreach}
-            {if count($row.target_contact_name) > 5}({ts}more{/ts}){/if}
+            {if count($row.target_contact_name) > 5} ({ts}more{/ts}){/if}
         {/if}
         </td>
 
@@ -108,9 +108,9 @@
   {/strip}
 
   {include file="CRM/common/pager.tpl" location="bottom"}
-  </form>
   
   {include file="CRM/Case/Form/ActivityToCase.tpl" contactID=$contactId}
+  </form>
 {else}
 
   <div class="messages status">
