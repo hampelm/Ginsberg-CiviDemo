@@ -32,7 +32,6 @@
 {if $action eq 2}
     {include file="CRM/Contact/Form/Contact.tpl"}
 {else}
-
 <div class="crm-actions-ribbon">
                     <ul id="actions">
                     	{* CRM-4418 *}
@@ -117,7 +116,7 @@
 
         <div title="Summary" id="contact-summary" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
             {if $hookContentPlacement neq 3}
-                
+                            
                 {if $hookContent and $hookContentPlacement eq 2}
                     {include file="CRM/Contact/Page/View/SummaryHook.tpl"}
                 {/if}
