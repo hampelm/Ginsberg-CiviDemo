@@ -28,91 +28,101 @@
 <div class="container">
   
   <div id="header-wrapper">
-  <div id="header">
-      <div id="status">
-   	    <div class="messages-container">
-        <?php	if ($messages != '') :?>
-   		   <div id="messages">
-   	        <?php print $messages; ?>
-   		   </div>
-       <?php endif; ?>
-       </div>
-      </div>
-      <div id="logo">
-        <?php if ($logo): ?>
-          <img src="<?php print $logo; ?>" />
-        <?php endif; ?>
-      </div> <!-- logo -->
-      <?php /* Design layout expects a site name, so include div for structure and style with min-height */ ?>
-      <div id="site_name">
-        <?php if ($site_name): ?>
-          <h1>
-            <?php print $site_name; ?>
-          </h1>
-        <?php endif; ?>
-      </div> <!-- site_name -->      
+      <div id="header">
+          
+          <div id="status">
+            <div class="messages-container">
+                <?php	if ($messages != '') :?>
+                <div id="messages">
+                <?php print $messages; ?>
+                </div>
+                <?php endif; ?>
+            </div>
+          </div>
+          
+          <?php /* Design layout expects a site name, so include div for structure and style with min-height */ ?>
+          <div id="site_name">
+            <?php if ($site_name): ?>
+              <h1>
+                <?php print $site_name; ?>
+              </h1>
+            <?php endif; ?>
+          </div> <!-- site_name -->      
       
-      <?php if ($search_box): ?>
-        <div id="search-box" class="span-8 last prepend-16">
-          <?php print $search_box; ?>
-        </div> <!-- /#search-box -->
-      <?php endif; ?>
-    <?php print $header; ?>
-    <?php if ($breadcrumb != '') :?>
-      <?php print $breadcrumb; ?>
-  <?php endif; ?>
+          <?php if ($search_box): ?>
+            <div id="search-box" class="span-8 last prepend-16">
+              <?php print $search_box; ?>
+            </div> <!-- /#search-box -->
+          <?php endif; ?>
+        <?php print $header; ?>
+        
+        <?php if ($breadcrumb != '') :?>
+            <!--
+            <?php print $breadcrumb; ?>
+            -->
+        <?php endif; ?>
+        
+      </div>
   </div>
-  </div>
+
+  
   <div id="container-wrapper">
-  <div id="container">
-    <?php
       
-      if ($tabs != '') {
-        print '<div class="tabs">'. $tabs .'</div>';
-      }
+      
+     
+     <?php if ($left || isset($primary_links) || isset($secondary_links)): ?>
+       <div id="left-sidebar" class="sidebar-wrapper">
+           <div id="left-sidebar-handle"></div>
+           <div class="sidebar-contents">
+               <?php if (isset($primary_links)) : ?>
+                 <?php print theme('links', $primary_links, array('id' => 'nav', 'class' => 'links primary-links')) ?>
+               <?php endif; ?>
+               <?php if (isset($secondary_links)) : ?>
+                 <?php print theme('links', $secondary_links, array('id' => 'subnav', 'class' => 'links secondary-links')) ?>
+               <?php endif; ?>
+               <?php print $left; ?>
+           </div>
+       </div>
+     <?php endif ?>
 
-      if ($messages != '') {
-        print '<div id="messages">'. $messages .'</div>';
-      }
+      <div id="content">
+        <?php
+          if ($tabs != '') {
+            print '<div class="tabs">'. $tabs .'</div>';
+          }
 
-      if ($title != '') {
-        print '<h2>'. $title .'</h2>';
-      }
+          if ($messages != '') {
+            print '<div id="messages">'. $messages .'</div>';
+          }
 
-      print $help; // Drupal already wraps this one in a class
+          if ($title != '') {
+            print '<h2>'. $title .'</h2>';
+          }
 
-      print $content;
-      print $feed_icons;
-    ?>
+          print $help; // Drupal already wraps this one in a class
 
-    <?php if ($footer_message || $footer): ?>
-      <div id="footer" class="clear">
-        <?php if ($footer): ?>
-          <?php print $footer; ?>
-        <?php endif; ?>
-        <?php if ($footer_message): ?>
-          <div id="footer-message"><?php print $footer_message; ?></div>
-        <?php endif; ?>
+          print $content;
+          print $feed_icons;
+        ?>
       </div>
-    <?php endif; ?>
-
-  </div>
+  
   
   </div>
-  <?php if ($left || isset($primary_links) || isset($secondary_links)): ?>
-    <div id="left-sidebar" class="sidebar-wrapper">
-        <div id="left-sidebar-handle"><span class="ui-icon ui-icon-arrowthickstop-1-e"></span></div>
-        <div class="sidebar-contents">
-            <?php if (isset($primary_links)) : ?>
-              <?php print theme('links', $primary_links, array('id' => 'nav', 'class' => 'links primary-links')) ?>
-            <?php endif; ?>
-            <?php if (isset($secondary_links)) : ?>
-              <?php print theme('links', $secondary_links, array('id' => 'subnav', 'class' => 'links secondary-links')) ?>
-            <?php endif; ?>
-            <?php print $left; ?>
-        </div>
+  
+
+  <?php if ($footer_message || $footer): ?>
+    <div id="footer" class="clear">  
+      <?php if ($footer): ?>
+<!--
+        <?php print $footer; ?>
+-->
+      <?php endif; ?>
+      <?php if ($footer_message): ?>
+          
+       <?php endif; ?>
     </div>
-  <?php endif ?>
+  <?php endif; ?>
+  
   <?php if ($right): ?>
     <div id="right-sidebar" class="sidebar-wrapper">
         <div id="right-sidebar-handle"><span class="ui-icon ui-icon-arrowthickstop-1-w"></span></div>
@@ -121,6 +131,7 @@
         </div>
     </div>
   <?php endif ?>
+  
   <?php if ($create_new_record | $quickadd | $recent_items): ?>
     <div id="bottom-wrapper">
     <div id="bottom">
@@ -141,7 +152,6 @@
     </div>
   <?php endif; ?>
   
-
   <?php print $closure; ?>
 
 </div>

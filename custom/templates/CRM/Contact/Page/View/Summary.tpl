@@ -32,6 +32,8 @@
 {if $action eq 2}
     {include file="CRM/Contact/Form/Contact.tpl"}
 {else}
+
+
 <div class="crm-actions-ribbon">
                     <ul id="actions">
                     	{* CRM-4418 *}
@@ -115,6 +117,7 @@
         </ul>
 
         <div title="Summary" id="contact-summary" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+            
             {if $hookContentPlacement neq 3}
                             
                 {if $hookContent and $hookContentPlacement eq 2}
@@ -122,39 +125,28 @@
                 {/if}
                 
                 {if $contact_type_label OR $current_employer_id OR $job_title OR $legal_name OR $sic_code OR $nick_name OR $contactTag OR $source}
-                <div id="contactTopBar">
-                    {if $contact_type_label OR $userRecordUrl OR $current_employer_id OR $job_title OR $legal_name OR $sic_code OR $nick_name}
+                
                     
-                        {if $current_employer_id}
-                            <div class="jobtitle">
-                            {if $job_title}{$job_title}{/if} at 
-                            <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$current_employer_id`"}" title="{ts}view current employer{/ts}">{$current_employer}</a>
-                            </div>
-                        {/if}
-                    
-                        {if $legal_name}
-                        <td class="label">{ts}Legal Name{/ts}</td>
-                        <td>{$legal_name}</td>
-                        {/if}
-                        
-                        {if $nick_name}
-                        {ts}Nickname{/ts}: {$nick_name}
-                        {/if}
-                        
-                        
-<!--
-                        {if $sic_code}
-                        <td class="label">{ts}SIC Code{/ts}</td>
-                        <td>{$sic_code}</td>
-                        {/if}
--->
+                    {if $current_employer_id}
+                        <div class="jobtitle">
+                        {if $job_title}{$job_title}{/if} at 
+                        <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$current_employer_id`"}" title="{ts}view current employer{/ts}">{$current_employer}</a>
+                        </div>
+                    {/if}
+                
+                    {if $legal_name}
+                    <td class="label">{ts}Legal Name{/ts}</td>
+                    <td>{$legal_name}</td>
                     {/if}
                     
-                    {if $contactTag OR $userRecordUrl OR $source}
+                    {if $nick_name}
+                    {ts}Nickname{/ts}: {$nick_name}
+                    {/if}
+                    
+                    {if $contactTag}<div id="tags"><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=$contactId&selectedChild=tag"}" title="{ts}Edit Tags{/ts}">{ts}Tags{/ts}</a>: {$contactTag}</div>{/if}
+                    
+                    {if $userRecordUrl OR $source}
                     <tr>
-                        {if $contactTag}
-                        <td class="label" id="tagLink"><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=$contactId&selectedChild=tag"}" title="{ts}Edit Tags{/ts}">{ts}Tags{/ts}</a></td><td id="tags">{$contactTag}</td>
-                        {/if}
                         {if $userRecordUrl}
                         <td class="label">{ts}User ID{/ts}</td><td><a title="View user record" class="user-record-link" href="{$userRecordUrl}">{$userRecordId}</a></div>
                         {/if}
@@ -165,147 +157,88 @@
                     {/if}
                     
 
-                    <div class="clear"></div>
-                </div><!-- #contactTopBar -->
                 {/if}
-                <div class="contact_details">
-                    <div class="contact_panel">
-                        <div class="contactCardLeft">
-                            <table>
-                                {foreach from=$email key="blockId" item=item}
-                                    {if $item.email}
-                                    <tr>
-                                        <td>
-                                            <span class={if $privacy.do_not_email}"do-not-email" title="{ts}Privacy flag: Do Not Email{/ts}" {elseif $item.on_hold}"email-hold" title="{ts}Email on hold - generally due to bouncing.{/ts}" {elseif $item.is_primary eq 1}"primary"{/if}>
-                                                <a href="mailto:{$item.email}">{$item.email}</a> 
-                                                ({$item.location_type}) 
-                                                {if $item.on_hold}
-                                                    ({ts}On Hold{/ts})
-                                                {/if}
-                                                {if $item.is_bulkmail}
-                                                    ({ts}Bulk{/ts}){/if}
-                                            </span>
-                                        </td>
-					                    <td class="description">
-					                        {if $item.signature_text OR $item.signature_html}
-					                            <a href="#" title="{ts}Signature{/ts}" onClick="showHideSignature( '{$blockId}' ); return false;">{ts}(signature){/ts}</a>
-					                        {/if}
-					                    </td>
-                                    </tr>
-                                    
-                                    <tr id="Email_Block_{$blockId}_signature" class="hiddenElement">
-                                        <td><strong>{ts}Signature HTML{/ts}</strong><br />{$item.signature_html}<br /><br />
-                                        <strong>{ts}Signature Text{/ts}</strong><br />{$item.signature_text|nl2br}</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                    {/if}
-                                {/foreach}
-                                {if $website}
-                                {foreach from=$website item=item}
-                                    {if $item.url}
-                                    <tr>
-                                        <td class="label">{$item.website_type} {ts}Website{/ts}</td>
-                                        <td><a href="{$item.url}" target="_blank">{$item.url}</a></td>
-                                        <td></td>
-                                    </tr>
-                                    {/if}
-                                {/foreach}
+                
+                {if $email}
+                {foreach from=$email key="blockId" item=item}
+                    {if $item.email}
+                        <div class="contact-email">
+                            <span class={if $privacy.do_not_email}"do-not-email" title="{ts}Privacy flag: Do Not Email{/ts}" {elseif $item.on_hold}"email-hold" title="{ts}Email on hold - generally due to bouncing.{/ts}" {elseif $item.is_primary eq 1}"primary"{/if}>
+                                <a href="mailto:{$item.email}">{$item.email}</a> 
+                                ({$item.location_type}) 
+                                {if $item.on_hold}
+                                    ({ts}On Hold{/ts})
                                 {/if}
-                                {if $user_unique_id}
-                                    <tr>
-                                        <td class="label">{ts}Unique Id{/ts}</td>
-                                        <td>{$user_unique_id}</td>
-                                        <td></td>
-                                    </tr>
-                                {/if}
-                            </table>
-                        </div><!-- #contactCardLeft -->
-
-                        <div class="contactCardRight">
-                            {if $phone OR $im OR $openid}
-                                <table>
-                                    {foreach from=$phone item=item}
-                                        {if $item.phone}
-                                            <div {if $item.is_primary eq 1}class="primary"{/if}>
-                                                <span {if $privacy.do_not_phone} class="do-not-phone" title={ts}"Privacy flag: Do Not Phone"{/ts} {/if}>
-                                                    {$item.phone}
-                                                </span> ({$item.location_type}&nbsp;{$item.phone_type})
-                                            </div>
-                                        {/if}
-                                    {/foreach}
-                                    {foreach from=$im item=item}
-                                        {if $item.name or $item.provider}
-                                        {if $item.name}<tr><td class="label">{$item.provider}&nbsp;({$item.location_type})</td><td {if $item.is_primary eq 1}class="primary"{/if}>{$item.name}</td></tr>{/if}
-                                        {/if}
-                                    {/foreach}
-                                    {foreach from=$openid item=item}
-                                        {if $item.openid}
-                                            <tr>
-                                                <td class="label">{$item.location_type}&nbsp;{ts}OpenID{/ts}</td>
-                                                <td {if $item.is_primary eq 1}class="primary"{/if}><a href="{$item.openid}">{$item.openid|mb_truncate:40}</a>
-                                                    {if $config->userFramework eq "Standalone" AND $item.allowed_to_login eq 1}
-                                                        <br/> <span style="font-size:9px;">{ts}(Allowed to login){/ts}</span>
-                                                    {/if}
-                                                </td>
-                                            </tr>
-                                        {/if}
-                                    {/foreach}
-                                </table>
-    						{/if}
-                        </div><!-- #contactCardRight -->
-
-                        <div class="clear"></div>
-                    </div><!-- #contact_panel -->
-
-					{if $address}
-					
-                    <div class="contact_panel">
-                        {foreach from=$address item=add key=locationIndex}
-                        <div class="{cycle name=location values="contactCardLeft,contactCardRight"} crm-address_{$locationIndex} crm-address-block crm-address_type_{$add.location_type}">
-                                        {ts 1=$add.location_type}%1&nbsp;Address{/ts}:
-                                        {if $config->mapAPIKey AND $add.geo_code_1 AND $add.geo_code_2}
-                                            <br /><a href="{crmURL p='civicrm/contact/map' q="reset=1&cid=`$contactId`&lid=`$add.location_type_id`"}" title="{ts 1='&#123;$add.location_type&#125;'}Map %1 Address{/ts}"><span class="geotag">{ts}Map{/ts}</span></a>
-                                        {/if}
-                                        {if $sharedAddresses.$locationIndex.shared_address_display.name}
-                                             <strong>{ts}Shared with:{/ts}</strong><br />
-                                             {$sharedAddresses.$locationIndex.shared_address_display.name}<br />
-                                         {/if}
-                                         {$add.display|nl2br}
-
-                            
-			                {foreach from=$add.custom item=customGroup key=cgId}
-                                {assign var="isAddressCustomPresent" value=1}
-			                    {foreach from=$customGroup item=customValue key=cvId}
-			                        <div id="address_custom_{$cgId}_{$locationIndex}" class="crm-accordion-wrapper crm-address-custom-{$cgId}-{$locationIndex}-accordion crm-accordion-closed">
-            			                <div class="crm-accordion-header">
-            			                    <div class="icon crm-accordion-pointer"></div>
-            				            {$customValue.title}
-            			                </div>
-			                            <div class="crm-accordion-body">
-				                            <table>
-				                                {foreach from=$customValue.fields item=customField key=cfId}
-					                                <tr><td class="label">{$customField.field_title}</td><td>{$customField.field_value}</td></tr>
-	                  	                        {/foreach}
-			                                </table>
-			                            </div>
-			                        </div>
-                                    <script type="text/javascript">
-                                        {if $customValue.collapse_display eq 1 }
-                                            cj('#address_custom_{$cgId}_{$locationIndex}').removeClass('crm-accordion-open').addClass('crm-accordion-closed');
-                                        {else}
-                                            cj('#address_custom_{$cgId}_{$locationIndex}').removeClass('crm-accordion-closed').addClass('crm-accordion-open');
-                                        {/if}
-                                    </script>
-                                {/foreach}
-                            {/foreach}
+                                {if $item.is_bulkmail}
+                                    ({ts}Bulk{/ts}){/if}
+                            </span>
                         </div>
-                        {/foreach}{* end foreach address *}
+                    {/if}
+                {/foreach} {* end foreach email *}
+                {/if}
+                
+                {if $website}
+                {foreach from=$website item=item}
+                    {if $item.url}
+                        <div class="contact-website"><a href="{$item.url}" target="_blank">{$item.url}</a></divs>
+                    {/if}
+                {/foreach}
+                {/if}
+                
+                {if $phone OR $im OR $openid}
+                        {foreach from=$phone item=item}
+                            {if $item.phone}
+                                <div class="{if $item.is_primary eq 1}primary{/if}">
+                                    <span class="crm-phone {if $privacy.do_not_phone}do-not-phone{/if}" {if $privacy.do_not_phone}title={ts}"Privacy flag: Do Not Phone"{/ts}{/if}>
+                                        {$item.phone}
+                                         ({$item.location_type}&nbsp;{$item.phone_type} - {if $privacy.do_not_phone}do not call{/if})
+                                    </span>
+                                </div>
+                            {/if}
+                        {/foreach}
+                        {foreach from=$im item=item}
+                            {if $item.name or $item.provider}
+                                {if $item.name}
+                                    <div class="crm-im">{$item.provider}&nbsp;({$item.location_type})</td><td {if $item.is_primary eq 1}class="primary"{/if}>{$item.name}</div>
+                                {/if}
+                            {/if}
+                        {/foreach}
+				{/if}
+				
+				
+				{if $address}
+				
+                    {foreach from=$address item=add key=locationIndex}
+                    <div class="crm-address_{$locationIndex} crm-address-block crm-address_type_{$add.location_type}">
+                                    {ts 1=$add.location_type}%1&nbsp;Address{/ts}:
+                                    {if $config->mapAPIKey AND $add.geo_code_1 AND $add.geo_code_2}
+                                        <br /><a href="{crmURL p='civicrm/contact/map' q="reset=1&cid=`$contactId`&lid=`$add.location_type_id`"}" title="{ts 1='&#123;$add.location_type&#125;'}Map %1 Address{/ts}"><span class="geotag">{ts}Map{/ts}</span></a>
+                                    {/if}
+                                    {if $sharedAddresses.$locationIndex.shared_address_display.name}
+                                         <strong>{ts}Shared with:{/ts}</strong><br />
+                                         {$sharedAddresses.$locationIndex.shared_address_display.name}<br />
+                                     {/if}
+                                     {$add.display|nl2br}
 
-                        <div class="clear"></div>
-                    </div>
-					{/if} {* end if address *}
-					
-                    <div class="contact_panel">
+                        
+		                {foreach from=$add.custom item=customGroup key=cgId}
+                            {assign var="isAddressCustomPresent" value=1}
+		                    {foreach from=$customGroup item=customValue key=cvId}
+		                        <div id="address_custom_{$cgId}_{$locationIndex}" class="crm-accordion-wrapper crm-address-custom-{$cgId}-{$locationIndex}-accordion crm-accordion-closed">
+				                    {$customValue.title}
+	                                {foreach from=$customValue.fields item=customField key=cfId}
+		                                <div class="contact-address">{$customField.field_title}: {$customField.field_value}</div>
+          	                        {/foreach}
+		                        </div>
+                            {/foreach}
+                        {/foreach}
+                    {/foreach}{* end foreach address *}
+
+                    <div class="clear"></div>
+                </div>
+				{/if} {* end if address *}
+				
+
                         <ul class="privacy font-red upper">
                             {foreach from=$privacy item=priv key=index}
                                 {if $priv}<li>{$privacy_values.$index}</li>{/if}
@@ -316,26 +249,38 @@
                         {if $preferred_communication_method_display}
                         <p>{ts}Preferred Method(s){/ts}: {$preferred_communication_method_display}</p>
                         {/if}
-<!--
-                                {if $preferred_language}
-                                <tr>
-                                    <td class="label">{ts}Preferred Language{/ts}</td><td>{$preferred_language}</td>
-                                </tr>
-                                {/if}
--->
-<!--
-                                <tr>
-                                    <td class="label">{ts}Email Format{/ts}</td><td>{$preferred_mail_format}</td>
-                                </tr>
--->
 
                         {include file="CRM/Contact/Page/View/Demographics.tpl"}
 						
-                        <div class="clear"></div>
                         <div class="separator"></div>
 						
-						
 <!--
+                        
+                        {if $sic_code}
+                        <td class="label">{ts}SIC Code{/ts}</td>
+                        <td>{$sic_code}</td>
+                        {/if}
+
+
+                        {if $user_unique_id}
+                            <tr>
+                                <td class="label">{ts}Unique Id{/ts}</td>
+                                <td>{$user_unique_id}</td>
+                                <td></td>
+                            </tr>
+                        {/if}
+
+                        <tr>
+                            <td class="label">{ts}Email Format{/ts}</td><td>{$preferred_mail_format}</td>
+                        </tr>
+
+
+                        {if $preferred_language}
+                        <tr>
+                            <td class="label">{ts}Preferred Language{/ts}</td><td>{$preferred_language}</td>
+                        </tr>
+                        {/if}
+
                         <div class="contactCardLeft">
                         {if $contact_type neq 'Organization'}
                          <table>
@@ -350,8 +295,6 @@
                          </table>
                          {/if}
                         </div>
--->
-<!--
                         <div class="contactCardRight">
                          <table>
                             <tr>
@@ -362,23 +305,13 @@
                         </div>
 -->
 						
-                        <div class="clear"></div>
-                    </div>
-                </div><!--contact_details-->
 
                 <div id="customFields">
-                    <div class="contact_panel">
-                        <div class="contactCardLeft">
                             {include file="CRM/Contact/Page/View/CustomDataView.tpl" side='1'}
-                        </div><!--contactCardLeft-->
 
-                        <div class="contactCardRight">
                             {include file="CRM/Contact/Page/View/CustomDataView.tpl" side='0'}
-                        </div>
-
-                        <div class="clear"></div>
-                    </div>
                 </div>
+                
                 {literal}
                 <script type="text/javascript">
                     cj('.columnheader').click( function( ) {
