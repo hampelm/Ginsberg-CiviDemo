@@ -35,6 +35,10 @@ h1, h2, h3, h4, h5, h6, #crm-container h3 {
     color: #556C82;
     margin:0;
 }
+    h2 {
+        font-size:24px;
+        margin-bottom:5px;
+    }
 code {font:.9em "Courier New", Monaco, Courier, monospace;}
 a img {border:none;}
 p img.top {margin-top:0;}
@@ -47,11 +51,49 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
 
 #header {
     background:#036 url(../images/bluet1.jpg) repeat-x left bottom;
-    padding:10px 50px;
+    padding:20px 25px;
 }
     #header h1 {
         color:#eee;
     }
+    #civicrm-menu {
+        padding:5px 0px 5px 18px;
+        background:#036 url(../images/bluet1.jpg) repeat-x left top;
+    }
+        #civicrm-menu li {
+            border:0px none;
+        }
+        .ac_results {
+            width:400px!important;
+            padding:0px;
+            -moz-border-radius:4px;
+            -webkit-box-shadow: 0px 0px 6px #333;
+            -moz-box-shadow: 0px 0px 6px #333;
+        }
+        .ac_results-inner {
+            background:#fff;
+            border:1px solid #ddd;
+        }
+            .ac_results li.ac_over,
+            .ac_results .ac_results-inner li.ac_even,
+            .ac_results .ac_results-inner li.ac_odd {
+                font-family:Myriad, "Myriad Pro", "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
+                background:transparent;
+                color:#333;
+                font-size:16px;
+                cursor:pointer;
+                padding:6px 7px;
+                -moz-border-radius:4px 4px 4px 4px;
+                -webkit-border-radius:4px 4px 4px 4px;
+            }
+            .ac_results li.ac_over strong,
+            .ac_results li strong {
+                color:#333;
+                background:#fea;
+            }
+            .ac_results .ac_results-inner li.ac_over {
+                background:#eee;
+            }
     
 #container-wrapper {
     padding-top:20px;
@@ -79,8 +121,8 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
         -moz-border-radius:6px 6px 6px 6px;
         -webkit-border-radius:6px 6px 6px 6px;
         border:1px solid #ddd;
-        -webkit-box-shadow: #ccc 0px 0px 3px;
-        -moz-box-shadow: #ccc 0px 0px 3px;
+        -webkit-box-shadow: 0px 0px 3px #ccc;
+        -moz-box-shadow: 0px 0px 3px #ccc;
         margin-left:200px;
     }
     #content #mainTabContainer .crm-contact-tabs-list {

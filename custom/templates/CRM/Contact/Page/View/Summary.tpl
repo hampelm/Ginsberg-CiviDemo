@@ -123,7 +123,6 @@
                 {if $hookContent and $hookContentPlacement eq 2}
                     {include file="CRM/Contact/Page/View/SummaryHook.tpl"}
                 {/if}
-                
                 {if $contact_type_label OR $current_employer_id OR $job_title OR $legal_name OR $sic_code OR $nick_name OR $contactTag OR $source}
                 
                     
@@ -145,17 +144,9 @@
                     
                     {if $contactTag}<div id="tags"><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=$contactId&selectedChild=tag"}" title="{ts}Edit Tags{/ts}">{ts}Tags{/ts}</a>: {$contactTag}</div>{/if}
                     
-                    {if $userRecordUrl OR $source}
-                    <tr>
-                        {if $userRecordUrl}
-                        <td class="label">{ts}User ID{/ts}</td><td><a title="View user record" class="user-record-link" href="{$userRecordUrl}">{$userRecordId}</a></div>
-                        {/if}
-                        {if $source}
-                        <td class="label">{ts}Source{/ts}</td><td>{$source}</td>
-                        {/if}
-                    </tr>
+                    {if $source}
+                    <td class="label">{ts}Source{/ts}</td><td>{$source}</td>
                     {/if}
-                    
 
                 {/if}
                 
@@ -210,7 +201,7 @@
 				
                     {foreach from=$address item=add key=locationIndex}
                     <div class="crm-address_{$locationIndex} crm-address-block crm-address_type_{$add.location_type}">
-                                    {ts 1=$add.location_type}%1&nbsp;Address{/ts}:
+                                    <h3>{ts 1=$add.location_type}%1&nbsp;Address{/ts}:</h3>
                                     {if $config->mapAPIKey AND $add.geo_code_1 AND $add.geo_code_2}
                                         <br /><a href="{crmURL p='civicrm/contact/map' q="reset=1&cid=`$contactId`&lid=`$add.location_type_id`"}" title="{ts 1='&#123;$add.location_type&#125;'}Map %1 Address{/ts}"><span class="geotag">{ts}Map{/ts}</span></a>
                                     {/if}
@@ -218,6 +209,7 @@
                                          <strong>{ts}Shared with:{/ts}</strong><br />
                                          {$sharedAddresses.$locationIndex.shared_address_display.name}<br />
                                      {/if}
+                                     
                                      {$add.display|nl2br}
 
                         
@@ -255,6 +247,15 @@
                         <div class="separator"></div>
 						
 <!--
+
+{if $userRecordUrl OR $source}
+<tr>
+    {if $userRecordUrl}
+    <td class="label">{ts}User ID{/ts}</td><td><a title="View user record" class="user-record-link" href="{$userRecordUrl}">{$userRecordId}</a></div>
+    {/if}
+</tr>
+{/if}
+
                         
                         {if $sic_code}
                         <td class="label">{ts}SIC Code{/ts}</td>
