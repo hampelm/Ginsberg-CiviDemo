@@ -123,31 +123,23 @@
                 {if $hookContent and $hookContentPlacement eq 2}
                     {include file="CRM/Contact/Page/View/SummaryHook.tpl"}
                 {/if}
-                {if $contact_type_label OR $current_employer_id OR $job_title OR $legal_name OR $sic_code OR $nick_name OR $contactTag OR $source}
                 
                     
                     {if $current_employer_id}
-                        <div class="jobtitle">
+                        <h3 class="jobtitle">
                         {if $job_title}{$job_title}{/if} at 
                         <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$current_employer_id`"}" title="{ts}view current employer{/ts}">{$current_employer}</a>
-                        </div>
+                        </h3>
                     {/if}
-                
-                    {if $legal_name}
-                    <td class="label">{ts}Legal Name{/ts}</td>
-                    <td>{$legal_name}</td>
-                    {/if}
-                    
-                    {if $nick_name}
-                    {ts}Nickname{/ts}: {$nick_name}
-                    {/if}
-                    
                     {if $contactTag}<div id="tags"><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=$contactId&selectedChild=tag"}" title="{ts}Edit Tags{/ts}">{ts}Tags{/ts}</a>: {$contactTag}</div>{/if}
-                    
-                    {if $source}
-                    <td class="label">{ts}Source{/ts}</td><td>{$source}</td>
-                    {/if}
-
+                
+                
+                <div class="floatcontainer">
+                <div class="left-half">
+                
+                
+                {if $nick_name}
+                {ts}Nickname{/ts}: {$nick_name}
                 {/if}
                 
                 {if $email}
@@ -161,7 +153,8 @@
                                     ({ts}On Hold{/ts})
                                 {/if}
                                 {if $item.is_bulkmail}
-                                    ({ts}Bulk{/ts}){/if}
+                                    ({ts}Bulk{/ts})
+                                {/if}
                             </span>
                         </div>
                     {/if}
@@ -196,7 +189,16 @@
                         {/foreach}
 				{/if}
 				
+				<ul class="privacy font-red upper">
+                    {foreach from=$privacy item=priv key=index}
+                        {if $priv}<li>{$privacy_values.$index}</li>{/if}
+                    {/foreach}
+                    {if $is_opt_out}<li>{ts}No Bulk Emails (User Opt Out){/ts}</li>{/if}
+                </ul>
+                
+				</div> <!-- end left -->
 				
+				<div class="right-half">
 				{if $address}
 				
                     {foreach from=$address item=add key=locationIndex}
@@ -230,21 +232,11 @@
                 </div>
 				{/if} {* end if address *}
 				
-
-                        <ul class="privacy font-red upper">
-                            {foreach from=$privacy item=priv key=index}
-                                {if $priv}<li>{$privacy_values.$index}</li>{/if}
-                            {/foreach}
-                            {if $is_opt_out}<li>{ts}No Bulk Emails (User Opt Out){/ts}</li>{/if}
-                        </ul>
+				</div>
+                </div>
                     
-                        {if $preferred_communication_method_display}
-                        <p>{ts}Preferred Method(s){/ts}: {$preferred_communication_method_display}</p>
-                        {/if}
 
                         {include file="CRM/Contact/Page/View/Demographics.tpl"}
-						
-                        <div class="separator"></div>
 						
 <!--
 
@@ -255,6 +247,16 @@
     {/if}
 </tr>
 {/if}
+
+                    {if $legal_name}
+                    <td class="label">{ts}Legal Name{/ts}</td>
+                    <td>{$legal_name}</td>
+                    {/if}
+                    
+                    {if $source}
+                    <td class="label">{ts}Source{/ts}</td><td>{$source}</td>
+                    {/if}
+
 
                         
                         {if $sic_code}

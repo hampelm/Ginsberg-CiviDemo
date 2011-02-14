@@ -36,7 +36,7 @@
 
 require_once 'CRM/Report/Form.php';
 
-class CRM_Report_Form_Contact_Log extends CRM_Report_Form {
+class CRM_Report_Form_Contact_RecentChanges extends CRM_Report_Form {
 
     protected $_summary      = null;
     
@@ -50,14 +50,14 @@ class CRM_Report_Form_Contact_Log extends CRM_Report_Form {
                    array( 'dao'       => 'CRM_Contact_DAO_Contact',
                           'fields'    =>
                           array( 'display_name' => 
-                                 array( 'title'     => ts( 'By' ),
+                                 array( 'title'     => ts( 'Modified By' ),
                                         'required'  => true,),
                                  'id'           => 
                                  array( 'no_display'=> true,
                                         'required'  => true, ), ),
                           'filters'   =>             
                           array( 'sort_name'    => 
-                                 array( 'title'      => ts( 'By' )  ),
+                                 array( 'title'      => ts( 'Modified By' )  ),
                           ),
                           'grouping'  => 'contact-fields',
                         ),
@@ -66,7 +66,7 @@ class CRM_Report_Form_Contact_Log extends CRM_Report_Form {
                    array( 'dao'       => 'CRM_Contact_DAO_Contact',
                           'fields'    =>
                           array( 'display_name_touched' => 
-                                 array( 'title'     => ts( 'Contact' ),
+                                 array( 'title'     => ts( 'Touched Contact' ),
                                         'name'      => 'display_name',
                                         'required'  => true,),
                                  'id'       => 
@@ -74,7 +74,7 @@ class CRM_Report_Form_Contact_Log extends CRM_Report_Form {
                                         'required'  => true, ), ),
                           'filters'   =>             
                           array( 'sort_name_touched'    => 
-                                 array( 'title'      => ts( 'Contact' ),
+                                 array( 'title'      => ts( 'Touched Contact' ),
                                         'name'       => 'sort_name',
                                       ),
                                 ),
@@ -84,16 +84,14 @@ class CRM_Report_Form_Contact_Log extends CRM_Report_Form {
                   'civicrm_activity' => 
                    array( 'dao'       => 'CRM_Activity_DAO_Activity',
                           'fields'    =>
-                          array( /*
-                          'id'  => array('title' => ts('Activity ID'),
-                                                                          'no_display' => true,
-                                                                          'required' => true,
-                                                                         ),*/
-                          
-                                 // 'subject'  => array('title' => ts('Touched Activity'),
-                                 //                                 'required' => true,
-                                 //                                ),
-                                 'activity_type_id'  => array('title' => ts( 'Activity' ),
+                          array( 'id'  => array('title' => ts('Activity'),
+                                                'no_display' => true,
+                                                'required' => true,
+                                               ),
+                                 'subject'  => array('title' => ts('Touched Activity'),
+                                                'required' => true,
+                                               ),
+                                 'activity_type_id'  => array('title' => ts( 'Activity Type' ),
                                                 'required' => true,
                                                ),
                                  'source_contact_id'  => array('no_display' => true,
@@ -106,7 +104,7 @@ class CRM_Report_Form_Contact_Log extends CRM_Report_Form {
                    array( 'dao'    => 'CRM_Core_DAO_Log',
                           'fields'    =>
                           array( 'modified_date' => 
-                                 array( 'title'     => ts( 'Date' ),
+                                 array( 'title'     => ts( 'Modified Date' ),
                                         'required'  => true,
                                        ),
                                  'data' => 

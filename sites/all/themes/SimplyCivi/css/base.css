@@ -2,7 +2,7 @@
 body .clear {
     display:none;
 }
-.crm-block, .crm-actions-ribbon, .crm-form-block {
+.crm-form-block {
     overflow:hidden;
 }
 body {
@@ -14,13 +14,13 @@ body {
     overflow-x: hidden;
 }
 hr {
-    background:#ccc;
-    color:#ccc;
+    background:#fff;
     width:100%;
-    height:2px;
-    margin:2em 0;
+    margin:1em 0;
     padding:0;
     border:none;
+    height:1px;
+    border-top:1px dotted #fff;
 }
 hr.space {
     background:#fff;
@@ -35,10 +35,20 @@ h1, h2, h3, h4, h5, h6, #crm-container h3 {
     color: #556C82;
     margin:0;
 }
-    h2 {
+    h2, 
+    .crm-accordion-header,
+    .crm-accordion-hasContent .crm-accordion-header {
+        font-family:Myriad, "Myriad Pro", "Helvetica Neue", Arial, "Lucida Grande", sans-serif;
         font-size:24px;
         margin-bottom:5px;
+        color: #556C82;
+        font-weight:normal;
     }
+    #crm-container h3 {
+        background:none;
+        padding:0px;
+    }
+    
 code {font:.9em "Courier New", Monaco, Courier, monospace;}
 a img {border:none;}
 p img.top {margin-top:0;}
@@ -46,7 +56,7 @@ blockquote {margin:1.5em;padding:1em;font-style:italic;font-size:.9em;}
 .small {font-size:.9em;}
 .large {font-size:1.1em;}
 .quiet {color:#999;}
-.hide {display:none;}
+.hide, .icon.settings-icon, a#expand  {display:none!important;}
 a:link, a:visited {background:transparent;font-weight:normal;text-decoration:underline;}
 
 #header {
@@ -64,7 +74,6 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
             border:0px none;
         }
         .ac_results {
-            width:400px!important;
             padding:0px;
             -moz-border-radius:4px;
             -webkit-box-shadow: 0px 0px 6px #333;
@@ -73,6 +82,8 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
         .ac_results-inner {
             background:#fff;
             border:1px solid #ddd;
+            font-size:16px;
+            
         }
             .ac_results li.ac_over,
             .ac_results .ac_results-inner li.ac_even,
@@ -94,6 +105,28 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
             .ac_results .ac_results-inner li.ac_over {
                 background:#eee;
             }
+            
+            .crm-actions-ribbon {
+                height:20px;
+            }
+            #crm-event-links-list, 
+            #crm-create-new-list, 
+            #crm-contact-actions-list, 
+            #crm-participant-list {
+                position:absolute;
+                background:#666;
+                font-size:16px;
+            }
+                #crm-event-links-list li.ac_over, 
+                #crm-create-new-list li.ac_over, 
+                #crm-contact-actions-list li.ac_over, 
+                #crm-participant-list  li.ac_over {
+                    font-size:12px;
+                    font-family:'Lucida Grande', Arial, sans-serif;
+                }
+            .crm-contact-actions-list-inner {
+                background:#666;
+            }
     
 #container-wrapper {
     padding-top:20px;
@@ -102,10 +135,14 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
     margin-left:25px;
     margin-right:25px;
 }
-    #content #crm-container .crm-content-block {
+    #content #crm-container .crm-content-block,
+    #content #crm-container .crm-form-block {
         background-color:#f9f5ec;
-        padding:0px;
     }
+        #content #crm-container .crm-form-block {
+            background:#fff;
+            padding:20px;
+        }
         #content #crm-container .crm-block .crm-block,
         #content #crm-container .crm-content-block .crm-content-block,
         #crm-container div#alpha-filter {
@@ -149,9 +186,17 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
             border-right:0;
             border-left:0;
         }
-    #crm-container h3 {
-        background:none;
+        
+    #crm-container .primary {
+        font-weight:normal;
     }
+    
+    #tags {
+        margin-bottom:.5em;
+        border-bottom:1px dotted #ccc;
+        padding-bottom:1em;
+    }
+    
 
 #left-sidebar {
     display:none;
@@ -171,6 +216,9 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
         display:none;
     }
 
+/* Actions */
+
+
 /* @group blueprint overrides */
 
 body {
@@ -186,6 +234,7 @@ div.container {
 a:link {
   color: #0495CC;
   color: #223366;
+  border-bottom:1px dotted #223366;
 }
 
 a:visited {
@@ -213,6 +262,13 @@ tr.even td {
 
 tr.odd td {
   background: #fff;
+}
+
+#crm-container tr {
+    font-size:1em;
+}
+#crm-container tr.columnheader {
+    border:0px none;
 }
 
 fieldset dl, fieldset select {
@@ -283,6 +339,9 @@ div.admin .right {
   line-height: 1.667em;
 }
 
+/* Form styles */
+
+
 input.form-text, textarea {
   border: 1px solid #ccc;
   padding: 0.2em;
@@ -302,6 +361,7 @@ div.form-item {
 .form-item label {
     font-weight:normal;
     }
+    
 
 div.error, tr.error, span.form-required, span.marker {
   color: #8A1F11;
@@ -313,20 +373,86 @@ div.error, tr.error, span.form-required, span.marker {
   color: #8A1F11;
 }
 
+#crm-container label,
+#crm-container form table label {
+    font-weight:bold;
+    display:inline-block;
+    width:140px;
+    color:#666;
+}
+
+input.form-text, 
+#crm-container input[type="text"], 
+#crm-container input[type="password"], 
+#crm-container select, 
+#crm-container textarea {
+    padding:3px;
+}
+    #crm-container input.form-text,
+    #crm-container input[type="text"] {
+        width:200px;
+    }
+        #crm-container .zip-form input.form-text,
+        #crm-container .zip-form input[type="text"] {
+            width:4em;
+        }
+    .form-item {
+        margin-bottom:1em;
+    }
+        .form-item strong.error {
+          display: block;
+        }
+
+        .form-item textarea.error {
+          padding: 0.2em;
+        }
+
+        .form-item .description {
+          font-size: 0.9em;
+          line-height: 1.667em; /* more accurate line-height value */
+        }
+        .shared-address {
+            background:#eee;
+            -moz-border-radius:4px;
+            -webkit-border-radius:4px;
+            border-radius:4px;
+            padding:10px;
+        }
+        
+    #form-first-name input,
+    #form-last-name input,
+    #form-first-name select {
+        font-size:20px;
+    }
+        #form-last-name select {
+            padding:2px;
+        }
+
+.crm-accordion-header {
+    background:#fff;
+    padding:0px;
+}
+    .crm-accordion-pointer {
+        display:none;
+    }
+    body #crm-container .crm-accordion-wrapper .crm-accordion-body {
+        border:0px none;
+    }
+    
+    
+    
+.left-half {
+    width:49%;
+    float:left;
+}
+.right-half {
+    width:49%;
+    float:right;
+}
+
+
 /* fix admin/settings/performance */
 
-.form-item strong.error {
-  display: block;
-}
-
-.form-item textarea.error {
-  padding: 0.2em;
-}
-
-.form-item .description {
-  font-size: 0.9em;
-  line-height: 1.667em; /* more accurate line-height value */
-}
 
 fieldset {
   background: #f7f7f7;
@@ -340,6 +466,10 @@ fieldset legend {
   background: #fff;
   border: 1px solid #ccc;
   padding: 0 0.4em;
+}
+
+#fieldset-custom label {
+    display:block;
 }
 
 /* prevent uncessary scrollbars */
@@ -714,4 +844,17 @@ input.form-submit {
 	-khtml-border-radius: 	3px; 
 	border-radius:			3px;
     }
+    
+/* 	
+	FLOATCONTAINER 
+	Adding class="floatcontainer" to an element forces an 
+	element to expand around floated items,
+	instead of collapsing.
+*/
+.floatcontainer {
+    overflow:auto;
+}
+/* End floatcontainer 
+Hack */ 
+
 

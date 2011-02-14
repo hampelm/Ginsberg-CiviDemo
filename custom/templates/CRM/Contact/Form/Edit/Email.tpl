@@ -28,23 +28,26 @@
 {* @var $blockId Contains the current email block id in evaluation, and assigned in the CRM/Contact/Form/Location.php file *}
 
 {if !$addBlock}
-	<div class="form-email">
-	    <label>{ts}Email{/ts} <a id='addEmail' href="#" title={ts}Add{/ts} onClick="buildAdditionalBlocks( 'Email', '{$className}');return false;">{ts}add{/ts}</a>
-	    </label>
-	{if $className eq 'CRM_Contact_Form_Contact'}
-	    {ts}On Hold?{/ts} {help id="id-onhold" file="CRM/Contact/Form/Contact.hlp"}
-	    {ts}Bulk Mailings?{/ts} {help id="id-bulkmail" file="CRM/Contact/Form/Contact.hlp"}
-	    <td id="Email-Primary" class="hiddenElement">{ts}Primary?{/ts}</td>
-	{/if}
-    </div>
+	    <tr>
+    	    <td colspan="2"> 
+    	        <label>{ts}Email{/ts} 
+    	            <a id='addEmail' href="#" title={ts}Add{/ts} onClick="buildAdditionalBlocks( 'Email', '{$className}');return false;">{ts}add another{/ts}</a>
+    	        </label>
+    	    </td>
+    	    {if $className eq 'CRM_Contact_Form_Contact'}
+    	        <td>{ts}On Hold?{/ts} {help id="id-onhold" file="CRM/Contact/Form/Contact.hlp"}</td>
+    	        <td>{ts}Bulk Mailings?{/ts} {help id="id-bulkmail" file="CRM/Contact/Form/Contact.hlp"}</td>
+    	        <td id="Email-Primary" class="hiddenElement">{ts}Primary?{/ts}</td>
+    	    {/if}
+	    </tr>
 {/if}
  
  
-<tr id="Email_Block_{$blockId}">
-    <td style="width: 50%;">{$form.email.$blockId.email.html|crmReplace:class:twenty}&nbsp;{$form.email.$blockId.location_type_id.html}
-    <div class="clear"></div>
+<tr id="Email_Block_{$blockId}">    
+    <td colspan="2">{$form.email.$blockId.email.html|crmReplace:class:twenty} {$form.email.$blockId.location_type_id.html}</td>
+    <!--
+    <td>
 {if $className eq 'CRM_Contact_Form_Contact'}
-<!--
 <div class="crm-accordion-wrapper crm-accordion-email-signature crm-accordion_title-accordion crm-accordion-closed">
  <div class="crm-accordion-header">
   <div class="icon crm-accordion-pointer"></div> 
@@ -55,10 +58,9 @@
             {$form.email.$blockId.signature_text.label}<br />{$form.email.$blockId.signature_text.html}
   </div>
 </div>
--->
-
 {/if}
-    </td>
+    </td>-->
+    
     <td align="center">{$form.email.$blockId.on_hold.html}</td>
     <td align="center" id="Email-Bulkmail-html">{$form.email.$blockId.is_bulkmail.html}</td>
     <td align="center" id="Email-Primary-html" {if $blockId eq 1}class="hiddenElement"{/if}>{$form.email.$blockId.is_primary.1.html}</td>
