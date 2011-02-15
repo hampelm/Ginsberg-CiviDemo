@@ -31,11 +31,6 @@
           <li id="nav-faculty"><a href="<?php print url() ?>teaching">Research &amp; Faculty Resources</a></li> 
 
           <li id="nav-search">
-<!--
-              <?php
-              print drupal_get_form('search_theme_form');
-              ?>
--->
             <form action="http://www.google.com/cse" id="cse-search-box">
               <div>
                 <input type="hidden" name="cx" value="001760569728741144314:vbsoldxq5gg" />
