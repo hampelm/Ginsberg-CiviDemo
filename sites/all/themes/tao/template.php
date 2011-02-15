@@ -546,43 +546,6 @@ function tao_views_mini_pager($tags = array(), $limit = 10, $element = 0, $param
 }
 
 
-/**
-* Override or insert PHPTemplate variables into the search_theme_form template.
-*
-* @param $vars
-*   A sequential array of variables to pass to the theme template.
-* @param $hook
-*   The name of the theme function being called (not used in this case.)
-*/
-function tao_preprocess_search_theme_form(&$vars, $hook) {
-  // Remove the "Search this site" label from the form.
-  $vars['form']['search_theme_form']['#title'] = t('');
- 
-  // Set a default value for text inside the search box field.
-  $vars['form']['search_theme_form']['#value'] = t('Search this site');
- 
-  // Add a custom class and placeholder text to the search box.
-  //$vars['form']['search_theme_form']['#attributes'] = array('class' => 'NormalTextBox txtSearch', 'onblur' => "if (this.value == '') {this.value = '".$vars['form']['search_block_form']['#value']."';} ;", 'onfocus' => "if (this.value == '".$vars['form']['search_block_form']['#value']."') {this.value = '';} ;" );
-
- 
-  // Change the text on the submit button
-  $vars['form']['submit']['#value'] = t('Go');
-
-  // Rebuild the rendered version (search form only, rest remains unchanged)
-  unset($vars['form']['search_theme_form']['#printed']);
-  $vars['search']['search_theme_form'] = drupal_render($vars['form']['search_theme_form']);
-
-  $vars['form']['submit']['#type'] = 'button';
-   
-  // Rebuild the rendered version (submit button, rest remains unchanged)
-  unset($vars['form']['submit']['#printed']);
-  $vars['search']['submit'] = drupal_render($vars['form']['submit']);
-
-  // Collect all form elements to make it easier to print the whole form.
-  $vars['search_form'] = implode($vars['search']);
-}
-
-
 function theme_search_item($item, $type) {
   $output = ' <dt class="title"><a href="'. check_url($item['link']) .'">'. check_plain($item['title']) .'</a></dt>';
   $output .= ' <dd>'. ($item['snippet'] ? '<p>'. $item['snippet'] .'</p>' : '');
