@@ -62,6 +62,7 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
 #header {
     background:#036 url(../images/bluet1.jpg) repeat-x left bottom;
     padding:20px 25px;
+    border-bottom:1px solid white;
 }
     #header h1 {
         color:#eee;
@@ -129,7 +130,9 @@ a:link, a:visited {background:transparent;font-weight:normal;text-decoration:und
             }
     
 #container-wrapper {
-    padding-top:20px;
+    padding-top:30px;
+    background:#f9f5ec url(../images/shadow-w.png) repeat-x left top;
+    
 }
 #content { 
     margin-left:25px;
