@@ -25,40 +25,39 @@
       <div id="header" class="clear-block">
 
           <ul id="nav-groups" class="clear-block"> 
-          <li id="nav-about"><a href="<?php print url() ?>about">About Ginsberg</a> </li> 
-          <li id="nav-students"> <a href="<?php print url() ?>students">For Students &amp; Student Orgs</a></li> 
-          <li id="nav-partners"><a href="<?php print url() ?>partners">For Community Partners</a></li> 
-          <li id="nav-faculty"><a href="<?php print url() ?>teaching">Research &amp; Faculty Resources</a></li> 
+              <li id="nav-about"><a href="http://ginsberg.umich.edu/about">About Ginsberg</a> </li> 
+              <li id="nav-students"> <a href="http://ginsberg.umich.edu/students">For Students &amp; Student Orgs</a></li> 
+              <li id="nav-partners"><a href="http://ginsberg.umich.edu/partners">For Community Partners</a></li> 
+              <li id="nav-faculty"><a href="http://ginsberg.umich.edu/teaching">Research &amp; Faculty Resources</a></li> 
 
-          <li id="nav-search">
-            <form action="http://www.google.com/cse" id="cse-search-box">
-              <div>
-                <input type="hidden" name="cx" value="001760569728741144314:vbsoldxq5gg" />
-                <input type="hidden" name="ie" value="UTF-8" />
-                <input type="text" name="q" size="18" class="field" />
-                <input type="submit" name="sa" value="Search" class="button" />
-              </div>
-            </form>
-          </li>
-          
+              <li id="nav-search">
+                <form action="http://www.google.com/cse" id="cse-search-box">
+                  <div>
+                    <input type="hidden" name="cx" value="001760569728741144314:vbsoldxq5gg" />
+                    <input type="hidden" name="ie" value="UTF-8" />
+                    <input type="text" name="q" size="18" class="field" />
+                    <input type="submit" name="sa" value="Search" class="button" />
+                  </div>
+                </form>
+              </li>
           </ul> 
           
-          <h1><a href="<?php print url() ?>">Ginsberg Center</a></h1> 
+          <h1><a href="http://ginsberg.umich.edu/">Ginsberg Center</a></h1> 
           <ul id="nav" class="clear-block"> 
-              <li id="nav-ar"><a href="<?php print url() ?>americareads">America Reads</a></li>  
-              <li id="nav-americorps"><a href="<?php print url() ?>americorps">AmeriCorps</a></li> 
-              <li id="nav-ia"><a href="<?php print url() ?>interfaith-action">Interfaith Action</a></li> 
-              <li id="nav-pc"><a href="<?php print url() ?>projectcommunity">Project Community</a></li> 
-              <li id="nav-sid"><a href="<?php print url() ?>semester-in-detroit">Semester in Detroit</a></li> 
-              <li id="nav-serve"><a href="<?php print url() ?>serve">SERVE</a>
-              <ul class="clear-block"> 
-                  <li><a href="<?php print url() ?>serve/asb">Alternative Spring Break</a></li> 
-                  <li><a href="<?php print url() ?>serve/aw">Alternative Weekends</a></li> 
-                  <li><a href="<?php print url() ?>serve/nasst">North American Summer Service Team</a></li> 
-                  <li><a href="<?php print url() ?>serve/pwst">Pangea World Service Team</a></li> 
-                  <li><a href="<?php print url() ?>serve/view">Volunteers Involved Every Week</a></li> 
-              </ul>
-          </li> 
+              <li id="nav-ar"><a href="http://ginsberg.umich.edu/americareads">America Reads</a></li>  
+              <li id="nav-americorps"><a href="http://ginsberg.umich.edu/americorps">AmeriCorps</a></li> 
+              <li id="nav-ia"><a href="http://ginsberg.umich.edu/interfaith-action">Interfaith Action</a></li> 
+              <li id="nav-pc"><a href="http://ginsberg.umich.edu/projectcommunity">Project Community</a></li> 
+              <li id="nav-sid"><a href="http://ginsberg.umich.edu/semester-in-detroit">Semester in Detroit</a></li> 
+              <li id="nav-serve"><a href="http://ginsberg.umich.edu/serve">SERVE</a>
+                  <ul class="clear-block"> 
+                      <li><a href="http://ginsberg.umich.edu/serve/asb">Alternative Spring Break</a></li> 
+                      <li><a href="http://ginsberg.umich.edu/serve/aw">Alternative Weekends</a></li> 
+                      <li><a href="http://ginsberg.umich.edu/serve/nasst">North American Summer Service Team</a></li> 
+                      <li><a href="http://ginsberg.umich.edu/serve/pwst">Pangea World Service Team</a></li> 
+                      <li><a href="http://ginsberg.umich.edu/serve/view">Volunteers Involved Every Week</a></li> 
+                  </ul>
+               </li> 
           </ul> 
           
 
@@ -227,7 +226,7 @@
                   Ann Arbor, MI 48104<br /><br />
                   phone: (734)647-7402 <br />
                   fax:(734)647-7464<br /><br />
-                  <a href="http://studentaffairs.umich.edu/" style="border:0px none"><img src="<?php print url() ?>sites/all/themes/tao/images/logos/wordlogoDSA.gif" alt="University of Michigan Division of Student Affairs" /></a>
+                  <a href="http://studentaffairs.umich.edu/" style="border:0px none"><img src="http://ginsberg.umich.edu/sites/all/themes/tao/images/logos/wordlogoDSA.gif" alt="University of Michigan Division of Student Affairs" /></a>
               </div>
               <div class="two">
                   
